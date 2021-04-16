@@ -1,7 +1,7 @@
 ---
 title: "team.Rmd"
 author: "Dana Thacker, Nikole Slinger"
-date: "4/13/2021"
+date: "4/16/2021"
 output: html_document
 ---
 
@@ -146,7 +146,6 @@ To visualize the results, we created two separate plots. The first is a time ser
 **Question 7**
 Now plot a choropleth map of the number of deaths on a county level. Also explain what you find.
 ```{r}
-StateCounty <- readxl::read_xlsx('FRPP_GLC_-_United_StATESaPRIL122021.xlsx')
 county <- map_data('county')
 
 #Creating countyInfo with distinct state and county names and codes
@@ -164,7 +163,7 @@ head(fatal)
 fatal2 <- fatal %>%
   group_by(totalFatal) %>%
   mutate(`State Code` = STATE, `County Code` = COUNTY) %>%
-  inner_join(countyInfo, by = c('State Code', 'County Code'))
+  right_join(countyInfo, by = c('State Code', 'County Code'))
 
 county <- county %>%
   mutate(`State Name` = toupper(region), `County Name` = toupper(subregion))
@@ -173,13 +172,13 @@ finalFatal <- fatal2 %>%
 
 #Creating choropleth map
 ggplot(finalFatal, aes(x = long, y = lat)) + 
-  geom_polygon(aes(group = group, fill = totalFatal))
+  geom_polygon(aes(group = group, fill = totalFatal)) + xlab("Longitude") + ylab("Latitude") + ggtitle("Number of Deaths by County in the United States")
 ```
 
 **Question 8**
 Is summer or winter more dangerous? Does this depend on states? Explore and explain.
 ```{r}
-#Total Summer vs Winter Accidetns
+#Total Summer vs Winter Accidents
 season <- inj_sev %>%
   filter(MONTH %in% c(1, 2, 6, 7, 8, 11, 12)) %>%
   mutate(Season = if_else(MONTH==c(6, 7, 8), "Summer", "Winter")) 
