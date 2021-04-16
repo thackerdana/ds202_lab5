@@ -140,6 +140,41 @@ Now plot a choropleth map of the number of deaths on a county level. Also explai
 **Question 8**
 Is summer or winter more dangerous? Does this depend on states? Explore and explain.
 ```{r}
+#Total Summer vs Winter Accidetns
+season <- inj_sev %>%
+  filter(MONTH %in% c(1, 2, 6, 7, 8, 11, 12)) %>%
+  mutate(Season = if_else(MONTH==c(6, 7, 8), "Summer", "Winter")) 
 
+ggplot(season, aes(x = Season)) + geom_bar() + ylab("Number of Accidents") + ggtitle("Total Number of Accidents in Summer vs Winter")
+
+#Summer vs Winter Accidents by State
+seasonCount <- season %>%
+  group_by(Season) %>%
+  summarise(seasonalAccident = n())
+
+season2 <- season %>%
+  group_by(STATE, Season) %>%
+  summarise(stateAccident = n())
+
+ggplot(season2, aes(x = Season, weight = stateAccident)) + geom_bar() + facet_wrap(~STATE, scales = "free_y")
+
+#Compare Midwest Summer vs Winter to Warm States Summer vs Winter
+
+#Midwest =  Illinois, Indiana, Iowa, Kansas, Michigan, Minnesota, Missouri, Nebraska, North Dakota, Ohio, South Dakota, and Wisconsin
+#Warmer = Arizona, California, Nevada, New Mexico, Texas, Florida, Georgia, Alabama, Louisiana, Mississippi, South Carolina, Hawaii, Virgin Islands
+
+midwestVSwarm <- season %>%
+  filter(STATE %in% c(1, 4, 6, 12, 13, 15, 22, 28, 32, 35, 45, 48, 52, 
+                      17, 18, 19, 20, 26, 27, 29, 31, 38, 39, 46, 55)) %>%
+  group_by(STATE, Season) %>%
+  summarise(stateAccident = n()) %>%
+  mutate(STATE = as.factor(STATE)) %>%
+  mutate(Location = if_else(STATE %in% c(17, 18, 19, 20, 26, 27, 29, 31, 38, 39, 46, 55),
+                            "Midwest", "Warm State"))
+
+ggplot(midwestVSwarm, aes(x = Location, weight = stateAccident)) + geom_bar() + facet_grid(~Season) + ylab("Number of Fatal Accidents") + ggtitle("Number of Fatal Accidents by US Location and Season")
 ```
+
+In all visualizations of the data, winter is clearly the more dangerous season for driving and fatal accidents. Summer was defined as the months of June, July, and August, and winter is November-February. We plotted the data in several ways. The first was a general plot of number of fatal accidents in the summer vs the winter with the information from all states. Then we broke the data down into state data to compare summer vs winter fatal accidents in each state. The visualization with all 54 US regions was not very intuitive, so we looked at states that get cold, snowy, and icy in the winter vs warmer states. The colder states were defined as the midwest (Illinois, Indiana, Iowa, Kansas, Michigan, Minnesota, Missouri, Nebraska, North Dakota, Ohio, South Dakota, and Wisconsin), and the warm states are the states that are generally vacation destinations in the winter (Arizona, California, Nevada, New Mexico, Texas, Florida, Georgia, Alabama, Louisiana, Mississippi, South Carolina, Hawaii, Virgin Islands). We assumed that the midwest would have more accidents than warm states in the winter due to the snowy and icy road conditions. The plot showed that this is not the case. In both the summer and the winter, the warmer states have more fatal accidents than the colder midwest states. 
+
 
