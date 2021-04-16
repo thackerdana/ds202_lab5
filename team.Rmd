@@ -168,12 +168,14 @@ fatal2 <- fatal %>%
 county <- county %>%
   mutate(`State Name` = toupper(region), `County Name` = toupper(subregion))
 finalFatal <- fatal2 %>%
-  left_join(county, by = c('State Name', 'County Name'))
+  right_join(county, by = c('State Name', 'County Name'))
 
 #Creating choropleth map
 ggplot(finalFatal, aes(x = long, y = lat)) + 
-  geom_polygon(aes(group = group, fill = totalFatal)) + xlab("Longitude") + ylab("Latitude") + ggtitle("Number of Deaths by County in the United States")
+  geom_polygon(aes(group = group, fill = totalFatal)) + ggtitle("Number of Deaths by County in the United States") + xlab("Longitude") + ylab("Latitude")
 ```
+
+The choropleth map makes it easy for us to visually see which counties have the most fatal accidents. The large majority of the map shows either a dark blue, meaning that the number of fatalities are relatively low, or grey, meaning there is no fatality data for that county. Some counties have a noticeably lighter blue color, which include a few counties in Florida, Texas, southern California, and the Chicago area. One possible reason for the higher number of fatal accidents may be due to the higher population in these counties. For instance, the population in Los Angeles County (one of the lighter blue counties) has a population of around 10 million, while the majority of counties in Iowa have a population of less than 100,000.
 
 **Question 8**
 Is summer or winter more dangerous? Does this depend on states? Explore and explain.
